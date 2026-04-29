@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AirOps Next Conf — Email Signature Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #ffffff;
+      --off-white: #F8FFFA;
+      --near-black: #000d05;
+      --green-100: #dfeae3;
+      --green-200: #CCFFE0;
+      --green-500: #008c44;
+      --green-600: #002910;
+      --interaction: #00ff64;
+      --accent-label: #EEFF8C;
+      --text-primary: #09090b;
+      --text-secondary: #676c79;
+      --text-tertiary: #a5aab6;
+      --stroke-primary: #ecedef;
+      --stroke-green: #d4e8da;
+      --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--off-white);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+
+    .page-wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .page-header svg { flex-shrink: 0; }
+
+    .header-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--stroke-green);
+    }
+
+    .header-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      background: var(--accent-label);
+      border: 1px solid #c8d97a;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--near-black);
+    }
+
+    /* ── Layout ── */
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ── Form card ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--stroke-green);
+      padding: 32px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--near-black);
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--stroke-green);
+      background: var(--white);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.15s;
+    }
+
+    input:focus {
+      border-color: var(--green-500);
+    }
+
+    input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--stroke-green);
+      margin: 24px 0;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 13px 24px;
+      background: var(--near-black);
+      color: var(--white);
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary:hover { background: var(--green-600); }
+
+    .btn-accent {
+      width: 100%;
+      padding: 13px 24px;
+      background: var(--interaction);
+      color: var(--near-black);
+      border: none;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      margin-top: 10px;
+      transition: opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-accent:hover { opacity: 0.85; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--near-black);
+      color: var(--white);
+      padding: 12px 24px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Preview card ── */
+    .preview-card {
+      background: var(--white);
+      border: 1px solid var(--stroke-green);
+      overflow: hidden;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--stroke-green);
+      background: var(--off-white);
+    }
+
+    .preview-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .preview-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--interaction);
+      flex-shrink: 0;
+    }
+
+    .preview-body {
+      padding: 32px;
+      background: #f5f5f5;
+      min-height: 300px;
+    }
+
+    .email-mock {
+      background: var(--white);
+      border: 1px solid #e0e0e0;
+      padding: 32px;
+      max-width: 580px;
+    }
+
+    .email-mock-body {
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .email-divider {
+      border: none;
+      border-top: 1px solid #e0e0e0;
+      margin: 20px 0;
+    }
+
+    /* ── Instructions ── */
+    .instructions {
+      background: var(--near-black);
+      border: 1px solid var(--near-black);
+      padding: 32px 40px;
+      margin-top: 32px;
+    }
+
+    .instructions-title {
+      font-family: var(--font-sans);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      text-transform: none;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 720px) {
+      .steps { grid-template-columns: 1fr; }
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 20px;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      background: var(--interaction);
+      color: var(--near-black);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.55;
+    }
+
+    .step-text strong { font-weight: 600; color: #fff; }
+    .step-text a { color: var(--interaction); text-decoration: none; }
+    .step-text a:hover { text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="page-header">
+    <!-- AirOps wordmark -->
+    <svg width="88" height="28" viewBox="0 0 784 252" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M111.828 65.6415V88.4663C101.564 72.0112 85.627 61.9258 65.9084 61.9258C23.7703 61.9258 0 92.9782 0 134.647C0 176.581 24.0404 208.695 66.4487 208.695C86.1672 208.695 101.834 198.609 111.828 182.154V204.979H144.782V65.6415H111.828ZM72.9315 181.093C48.8911 181.093 35.1152 159.064 35.1152 134.647C35.1152 110.76 48.621 89.7933 73.4717 89.7933C94.0006 89.7933 111.558 104.391 111.558 134.116C111.558 163.31 94.8109 181.093 72.9315 181.093Z" fill="#001408"/>
+      <path d="M173.137 65.6494V204.987H208.252V65.6494H173.137Z" fill="#001408"/>
+      <path d="M272.998 100.141V65.6386H237.883V204.976H272.998V125.355C272.998 104.919 287.314 96.691 300.82 96.691C308.653 96.691 316.757 98.8143 321.079 100.407V63.25C298.119 63.25 279.211 76.7856 272.998 100.141Z" fill="#001408"/>
+      <path d="M329.629 108.115C329.629 151.377 359.882 182.163 403.371 182.163C447.13 182.163 477.115 151.377 477.115 108.115C477.115 65.6507 447.13 35.3945 403.371 35.3945C359.882 35.3945 329.629 65.6507 329.629 108.115ZM441.997 108.115C441.997 135.187 427.141 154.561 403.371 154.561C379.33 154.561 364.744 135.187 364.744 108.115C364.744 82.1058 379.33 63.2621 403.371 63.2621C427.141 63.2621 441.997 82.1058 441.997 108.115Z" fill="#001408"/>
+      <path d="M575.086 61.9258C554.557 61.9258 537.81 73.869 528.896 92.9782V65.6415H493.781V251.425H528.896V180.031C538.891 197.282 557.529 208.695 577.247 208.695C615.604 208.695 642.345 179.235 642.345 137.035C642.345 92.7128 614.523 61.9258 575.086 61.9258ZM568.874 182.685C545.374 182.685 528.896 163.31 528.896 135.708C528.896 107.31 545.374 87.4047 568.874 87.4047C591.293 87.4047 607.23 107.841 607.23 136.77C607.23 163.841 591.293 182.685 568.874 182.685Z" fill="#001408"/>
+      <path d="M653.555 156.675C653.555 181.889 676.244 208.695 721.624 208.695C767.274 208.695 783.751 182.42 783.751 161.983C783.751 130.666 746.205 125.092 721.084 120.315C704.066 117.395 693.262 115.007 693.262 105.452C693.262 94.5706 705.417 87.6701 718.383 87.6701C735.94 87.6701 742.693 99.6133 743.233 112.353H778.349C778.349 91.6511 763.492 61.9258 717.572 61.9258C677.865 61.9258 658.147 83.9544 658.147 107.575C658.147 141.282 696.233 144.732 721.354 149.509C735.94 152.163 748.636 155.348 748.636 165.699C748.636 176.05 736.21 182.95 722.975 182.95C710.549 182.95 688.67 176.05 688.67 156.675H653.555Z" fill="#001408"/>
+      <path d="M191.339 48.6576C176.921 48.6576 166.578 38.4949 166.578 24.6368C166.578 10.7786 176.921 0 191.339 0C205.13 0 216.1 10.7786 216.1 24.6368C216.1 38.4949 205.13 48.6576 191.339 48.6576Z" fill="#001408"/>
+    </svg>
+    <div class="header-divider"></div>
+    <span class="header-label">Email Signature Generator</span>
+    <div class="pill">Next Conf · May 13</div>
+  </div>
+
+  <!-- Main layout -->
+  <div class="layout">
+
+    <!-- Left: Form -->
+    <div>
+      <div class="card">
+        <div class="card-title">Your details</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First name</label>
+            <input type="text" id="firstName" placeholder="Jane" oninput="updatePreview()" />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last name</label>
+            <input type="text" id="lastName" placeholder="Smith" oninput="updatePreview()" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="jobTitle">Job title</label>
+          <input type="text" id="jobTitle" placeholder="Head of Marketing" oninput="updatePreview()" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="jane@airops.com" oninput="updatePreview()" />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" placeholder="+1 (555) 000-0000" oninput="updatePreview()" />
+        </div>
+
+        <div class="divider"></div>
+
+        <button class="btn-accent" onclick="copySignature()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter"><rect x="9" y="9" width="13" height="13" rx="0"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy signature
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Right: Preview -->
+    <div>
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-header-left">
+            <div class="preview-dot"></div>
+            <span class="preview-title">Live preview</span>
+          </div>
+          <span class="pill">Email signature</span>
+        </div>
+        <div class="preview-body">
+          <div class="email-mock">
+            <div class="email-mock-body">
+              Hi there,<br><br>
+              Thanks for connecting — looking forward to catching up soon.
+            </div>
+            <hr class="email-divider" />
+            <!-- LIVE SIGNATURE PREVIEW -->
+            <div id="signaturePreview"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <div class="instructions-title">How to add to Gmail</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Fill in your details above, then click <strong>Copy signature</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Open <a href="https://mail.google.com/mail/u/0/#settings/general" target="_blank">Gmail Settings</a> — click the gear icon (⚙) → <strong>See all settings</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Scroll to the <strong>Signature</strong> section. Create a new signature or select your existing one to edit.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Click inside the signature text box, then paste (<strong>Cmd+V</strong> on Mac / <strong>Ctrl+V</strong> on Windows). The formatted signature should appear — not code.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-text">In the <strong>Signature defaults</strong> section just below, set your new signature in both the <strong>For new emails use</strong> and <strong>On reply/forward use</strong> dropdowns.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-text">Click <strong>Save Changes</strong> at the bottom of the page. Done!</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- Toast -->
+<div class="toast" id="toast">Signature HTML copied to clipboard!</div>
+
+<script>
+  const CONF_LINK = 'https://nextconf.airops.com/';
+  const BANNER_URL = 'https://nextconf.airops.com/Assets/OpenGraph-1200x630px.png';
+
+  function getValues() {
+    const first  = document.getElementById('firstName').value.trim();
+    const last   = document.getElementById('lastName').value.trim();
+    const title  = document.getElementById('jobTitle').value.trim();
+    const email  = document.getElementById('email').value.trim();
+    const phone  = document.getElementById('phone').value.trim();
+    return { first, last, title, email, phone };
+  }
+
+  function buildSignatureHTML(v) {
+    const name = [v.first, v.last].filter(Boolean).join(' ') || 'Your Name';
+    const title = v.title || 'Your Title';
+
+    const emailLine = v.email
+      ? `<tr><td style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;color:#676c79;padding-bottom:2px;">
+           <a href="mailto:${escHtml(v.email)}" style="color:#676c79;text-decoration:none;">${escHtml(v.email)}</a>
+         </td></tr>`
+      : '';
+
+    const phoneLine = v.phone
+      ? `<tr><td style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;color:#676c79;padding-bottom:2px;">
+           <a href="tel:${escHtml(v.phone.replace(/\s/g,''))}" style="color:#676c79;text-decoration:none;">${escHtml(v.phone)}</a>
+         </td></tr>`
+      : '';
+
+    return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.4;color:#09090b;max-width:280px;">
+  <tbody>
+
+    <!-- Logo row -->
+    <tr>
+      <td style="padding-bottom:10px;">
+        <a href="https://airops.com" target="_blank" style="text-decoration:none;display:inline-block;">
+          <span style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:17px;font-weight:800;color:#001408;letter-spacing:-0.04em;">airops</span>
+        </a>
+      </td>
+    </tr>
+
+    <!-- Name row -->
+    <tr>
+      <td style="padding-bottom:3px;">
+        <span style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:15px;font-weight:700;color:#000d05;letter-spacing:-0.01em;">${escHtml(name)}</span>
+      </td>
+    </tr>
+
+    <!-- Title row -->
+    <tr>
+      <td style="padding-bottom:10px;">
+        <span style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;color:#676c79;">${escHtml(title)}</span>
+      </td>
+    </tr>
+
+    ${emailLine}
+    ${phoneLine}
+
+    <!-- Divider -->
+    <tr>
+      <td style="padding:14px 0 14px 0;">
+        <div style="height:1px;background:#d4e8da;width:100%;max-width:280px;"></div>
+      </td>
+    </tr>
+
+    <!-- Conference banner -->
+    <tr>
+      <td>
+        <a href="${CONF_LINK}" target="_blank" style="display:block;text-decoration:none;">
+          <img
+            src="${BANNER_URL}"
+            alt="AirOps Next Conf — One day. One stage. The conference for the future agent-driven growth. May 13, New York City."
+            width="280"
+            style="display:block;width:100%;max-width:280px;border:0;"
+          />
+        </a>
+      </td>
+    </tr>
+
+    <!-- CTA -->
+    <tr>
+      <td style="padding-top:12px;">
+        <a href="${CONF_LINK}" target="_blank"
+           style="display:inline-block;padding:10px 20px;background:#000d05;color:#ffffff;font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:-0.01em;">
+          Register now &rarr;
+        </a>
+      </td>
+    </tr>
+
+  </tbody>
+</table>`;
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function updatePreview() {
+    const v = getValues();
+    document.getElementById('signaturePreview').innerHTML = buildSignatureHTML(v);
+  }
+
+  async function copySignature() {
+    const v = getValues();
+    const html = buildSignatureHTML(v);
+
+    // Write as text/html so it pastes as rendered content (not source code) in Gmail
+    try {
+      const blob = new Blob([html], { type: 'text/html' });
+      const item = new ClipboardItem({ 'text/html': blob });
+      await navigator.clipboard.write([item]);
+      showToast('Signature copied — paste directly into Gmail!');
+    } catch (err) {
+      // Fallback: select the rendered preview and copy it
+      try {
+        const preview = document.getElementById('signaturePreview');
+        const range = document.createRange();
+        range.selectNode(preview);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        sel.removeAllRanges();
+        showToast('Signature copied — paste directly into Gmail!');
+      } catch (e) {
+        showToast('Copy failed — try selecting the preview manually.');
+      }
+    }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  // Init preview on load
+  updatePreview();
+</script>
+
+</body>
+</html>
