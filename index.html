@@ -382,32 +382,32 @@
         <div class="form-row">
           <div class="form-group">
             <label for="firstName">First name</label>
-            <input type="text" id="firstName" placeholder="Jane" oninput="updatePreview()" />
+            <input type="text" id="firstName" placeholder="Jane" oninput="onFieldInput(this)" />
           </div>
           <div class="form-group">
             <label for="lastName">Last name</label>
-            <input type="text" id="lastName" placeholder="Smith" oninput="updatePreview()" />
+            <input type="text" id="lastName" placeholder="Smith" oninput="onFieldInput(this)" />
           </div>
         </div>
 
         <div class="form-group">
           <label for="jobTitle">Job title</label>
-          <input type="text" id="jobTitle" placeholder="Head of Marketing" oninput="updatePreview()" />
+          <input type="text" id="jobTitle" placeholder="Head of Marketing" oninput="onFieldInput(this)" />
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" placeholder="jane@airops.com" oninput="updatePreview()" />
+          <input type="email" id="email" placeholder="jane@airops.com" oninput="onFieldInput(this)" />
         </div>
 
         <div class="form-group">
           <label for="phone">Phone</label>
-          <input type="tel" id="phone" placeholder="+1 (555) 000-0000" oninput="updatePreview()" />
+          <input type="tel" id="phone" placeholder="+1 (555) 000-0000" oninput="onFieldInput(this)" />
         </div>
 
         <div class="form-group">
           <label for="linkedin">LinkedIn slug</label>
-          <input type="text" id="linkedin" placeholder="jessicarosenb" oninput="updatePreview()" />
+          <input type="text" id="linkedin" placeholder="jessicarosenb" oninput="onFieldInput(this)" />
         </div>
 
         <div class="divider"></div>
@@ -610,17 +610,37 @@
       .replace(/"/g, '&quot;');
   }
 
-  // Dummy data shown in the preview so the layout reads as finished
-  // even before the user fills the form. Copy uses real values only.
+  // Track which fields the user has interacted with. Empty + touched = render nothing;
+  // empty + untouched = render the dummy value so the preview reads as finished on load.
+  const touchedFields = new Set();
+  function onFieldInput(el) {
+    touchedFields.add(el.id);
+    updatePreview();
+  }
+
+  const PREVIEW_DEFAULTS = {
+    firstName: 'Jane',
+    lastName:  'Smith',
+    jobTitle:  'Head of Marketing',
+    email:     'jane@airops.com',
+    phone:     '+1 (555) 000-0000',
+    linkedin:  'janesmith',
+  };
+
+  function previewValue(id, real) {
+    if (real) return real;
+    return touchedFields.has(id) ? '' : PREVIEW_DEFAULTS[id];
+  }
+
   function getPreviewValues() {
     const v = getValues();
     return {
-      first:    v.first    || 'Jane',
-      last:     v.last     || 'Smith',
-      title:    v.title    || 'Head of Marketing',
-      email:    v.email    || 'jane@airops.com',
-      phone:    v.phone    || '+1 (555) 000-0000',
-      linkedin: v.linkedin || 'janesmith',
+      first:    previewValue('firstName', v.first),
+      last:     previewValue('lastName',  v.last),
+      title:    previewValue('jobTitle',  v.title),
+      email:    previewValue('email',     v.email),
+      phone:    previewValue('phone',     v.phone),
+      linkedin: previewValue('linkedin',  v.linkedin),
     };
   }
 
