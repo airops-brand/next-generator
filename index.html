@@ -406,6 +406,11 @@
           <input type="tel" id="phone" placeholder="+1 (555) 000-0000" oninput="updatePreview()" />
         </div>
 
+        <div class="form-group">
+          <label for="linkedin">LinkedIn slug</label>
+          <input type="text" id="linkedin" placeholder="jessicarosenb" oninput="updatePreview()" />
+        </div>
+
         <div class="divider"></div>
 
         <button class="btn-accent" onclick="copySignature()">
@@ -488,7 +493,13 @@
     const title  = document.getElementById('jobTitle').value.trim();
     const email  = document.getElementById('email').value.trim();
     const phone  = document.getElementById('phone').value.trim();
-    return { first, last, title, email, phone };
+    // Accept slug, "/slug", or full linkedin.com/in/slug URLs
+    const linkedin = document.getElementById('linkedin').value
+      .trim()
+      .replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//i, '')
+      .replace(/^\//, '')
+      .replace(/\/+$/, '');
+    return { first, last, title, email, phone, linkedin };
   }
 
   function buildSignatureHTML(v) {
@@ -504,6 +515,17 @@
     const phoneLine = v.phone
       ? `<tr><td style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;color:#676c79;padding-bottom:2px;">
            <a href="tel:${escHtml(v.phone.replace(/\s/g,''))}" style="color:#676c79;text-decoration:none;">${escHtml(v.phone)}</a>
+         </td></tr>`
+      : '';
+
+    const linkedinLine = v.linkedin
+      ? `<tr><td style="font-family:Helvetica Neue,Helvetica,Arial,sans-serif;font-size:13px;color:#676c79;padding-bottom:2px;">
+           <a href="https://www.linkedin.com/in/${escHtml(v.linkedin)}" target="_blank" style="color:#676c79;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+             <svg width="13" height="13" viewBox="0 0 24 24" fill="#676c79" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;">
+               <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.48-.9 1.65-1.85 3.4-1.85 3.63 0 4.3 2.39 4.3 5.49v6.25zM5.34 7.43a2.06 2.06 0 1 1 .01-4.13 2.06 2.06 0 0 1-.01 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.99 0 1.78-.77 1.78-1.72V1.72C24 .77 23.21 0 22.22 0z"/>
+             </svg>
+             <span>/${escHtml(v.linkedin)}</span>
+           </a>
          </td></tr>`
       : '';
 
@@ -543,6 +565,7 @@
 
     ${emailLine}
     ${phoneLine}
+    ${linkedinLine}
 
     <!-- Divider -->
     <tr>
