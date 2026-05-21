@@ -628,9 +628,22 @@
       .replace(/"/g, '&quot;');
   }
 
-  function updatePreview() {
+  // Dummy data shown in the preview so the layout reads as finished
+  // even before the user fills the form. Copy uses real values only.
+  function getPreviewValues() {
     const v = getValues();
-    document.getElementById('signaturePreview').innerHTML = buildSignatureHTML(v);
+    return {
+      first:    v.first    || 'Jane',
+      last:     v.last     || 'Smith',
+      title:    v.title    || 'Head of Marketing',
+      email:    v.email    || 'jane@airops.com',
+      phone:    v.phone    || '+1 (555) 000-0000',
+      linkedin: v.linkedin || 'janesmith',
+    };
+  }
+
+  function updatePreview() {
+    document.getElementById('signaturePreview').innerHTML = buildSignatureHTML(getPreviewValues());
   }
 
   async function copySignature() {
